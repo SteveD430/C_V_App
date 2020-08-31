@@ -15,7 +15,9 @@ namespace C_V_App.ViewModels
 
         double CurrentLimit { get; set; }
 
-        IKeithley2400Model Initialize();
+        IKeithley2400Model GetModel();
+
+        void SetModelForExecution();
 
     }
 }

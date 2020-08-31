@@ -72,7 +72,13 @@ namespace C_V_App.Models
         {
             string response = "";
             // Write heads list to output file and it should have # on the front
-            DataWriteLine($"# Version Information: {Assembly.GetEntryAssembly().GetName().Version.ToString()} ");
+            string version = "Not Known";
+            if (Assembly.GetEntryAssembly() != null && Assembly.GetEntryAssembly().GetName() != null)
+            {
+                version = Assembly.GetEntryAssembly().GetName().Version.ToString();
+            }
+            DataWriteLine($" Date: {DateTime.Today}");
+            DataWriteLine($"# Version Information: {version}");
             DataWriteLine($"# {_wayneKerr4300.ReportingFields}");
             string notes = "# Using measurement frequency " + _wayneKerr4300.SerialSafeRead(":MEAS:FREQ?") + " Hz ";
             notes += " at a drive level of " + _wayneKerr4300.SerialSafeRead(":MEAS:LEV?") + " volts.";

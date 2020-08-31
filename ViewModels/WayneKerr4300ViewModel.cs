@@ -28,10 +28,14 @@ namespace C_V_App.ViewModels
             set { SetProperty<double>(ref _acAmplitude, value); }
         }
 
-        public IWayneKerr4300Model Initialize()
+        public IWayneKerr4300Model GetModel()
+        {
+            return _wayneKerr4300;
+        }
+
+        public void SetModelForExecution()
         {
             _wayneKerr4300.Amplitude = Amplitude;
-            return _wayneKerr4300;
         }
     }
 }

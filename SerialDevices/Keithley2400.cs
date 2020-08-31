@@ -67,6 +67,20 @@ namespace C_V_App.SerialDevices
             }
         }
 
+        public override void ReleaseDevice()
+        {
+            if (SerialPort != null)
+            {
+                if (!SerialPort.IsOpen)
+                {
+                    SerialPort.Open();
+                }
+                SerialPort.WriteLine("SOUR:VOLT:LEV 0");    // set the voltage level to zero
+                SerialPort.WriteLine(":OUTP OFF");          // and turn the Keithley supply off
+            }
+            base.ReleaseDevice();
+        }
+
         private bool DiscoverDevice(ISerialPortManager serialPortManager)
         {
             ISerialPort serialPort;

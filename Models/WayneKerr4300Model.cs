@@ -33,6 +33,10 @@ namespace C_V_App.Models
 
         public void SerialSafeWrite(string data)
         {
+            if(!_wayneKerr4300SerialDevice.SerialPort.IsOpen)
+            {
+                _wayneKerr4300SerialDevice.SerialPort.Open();
+            }
             _wayneKerr4300SerialDevice.SerialSafeWrite(data);
         }
 

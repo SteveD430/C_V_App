@@ -44,10 +44,10 @@
           <StackPanel Grid.Row="3" Orientation="Horizontal" Height="Auto">
             <Button x:Name="DiscoveryBtn" Width="100" Margin="192,2,2,2" Command="{Binding DiscoveryCommand}">Port Discovery</Button>
             <Label x:Name="KeithleyPortlabelLbl" Margin="0,2,0,2" Width="100" HorizontalContentAlignment="Right">Keithley:</Label>
-            <Label x:Name="KeithleyPortLbl" Margin="0,2,0,2" HorizontalContentAlignment="Left" 
+            <Label x:Name="KeithleyPortLbl" Margin="-5,2,0,2" HorizontalContentAlignment="Left" 
                    Foreground="Red" Content="{Binding Keithley.PortName}"></Label>
             <Label x:Name="WayneKerrlabelLbl" Margin="0,2,0,2" Width="100" HorizontalContentAlignment="Right">Wayne Kerr:</Label>
-            <Label x:Name="WayneKerrPortLbl" Margin="0,2,0,2" HorizontalContentAlignment="Left" 
+            <Label x:Name="WayneKerrPortLbl" Margin="-5,2,0,2" HorizontalContentAlignment="Left" 
                    Foreground="Red" Content="{Binding WayneKerr.PortName}"></Label>
           </StackPanel>
         </Grid>

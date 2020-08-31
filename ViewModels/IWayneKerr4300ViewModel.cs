@@ -9,6 +9,8 @@ namespace C_V_App.ViewModels
 
         double Amplitude { get; set; }
 
-        IWayneKerr4300Model Initialize();
+        IWayneKerr4300Model GetModel();
+
+        void SetModelForExecution();
     }
 }

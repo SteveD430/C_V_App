@@ -73,6 +73,10 @@ namespace C_V_App.SerialDevices
             }            
         }
 
+        public override void ReleaseDevice()
+        {
+            base.ReleaseDevice();
+        }
 
         #endregion ISerialDevice
 

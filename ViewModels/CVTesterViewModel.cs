@@ -3,6 +3,7 @@ using Prism.Commands;
 using System;
 using System.Text;
 using System.IO;
+using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,9 @@ namespace C_V_App.ViewModels
         private string _resultsFilename;
         private string _statusMessage;
         private double _newFrequency;
+        private bool _shortCircuitActive;
+        private bool _openCircuitActive;
+        private bool _devicesDiscovered;
         private bool _executing;
         private bool _emulate;
 
@@ -49,10 +53,11 @@ namespace C_V_App.ViewModels
         {
             _cvScan = new CVScan();
             _cvtester = cvTester;
+            _cvtester.Closing += CloseProgram;
             Keithley = keithley2400ViewModel;
             WayneKerr = wayneKerr4300ViewModel;
-            _wayneKerr = WayneKerr.Initialize();
-            _keithley = Keithley.Initialize();
+            _wayneKerr = WayneKerr.GetModel(); 
+            _keithley = Keithley.GetModel(); 
 
             _serialPortManagerSelector = new SerialPortManagerSelector(new SerialPortManager(),
                                                             new SerialPortEmulatorManager());
@@ -61,6 +66,9 @@ namespace C_V_App.ViewModels
             _cvScan.Monitor = MonitorMessageDelegate;
             _monitorStringBuilder = new StringBuilder();
             FrequencyList = new ObservableCollection<double>();
+            _shortCircuitActive = false;
+            _openCircuitActive = false;
+            _devicesDiscovered = false;
             Executing = false;
             Emulate = true;
 
@@ -83,28 +91,27 @@ namespace C_V_App.ViewModels
             ShortCircuitTestCommand = new DelegateCommand(ExecuteShortCircuitTest, CanExecuteShortCircuitTest)
                  .ObservesProperty<bool>(() => Emulate)
                  .ObservesProperty<bool>(() => Executing)
-                 .ObservesProperty<string>(() => KeithleyEmulationFile)
-                 .ObservesProperty<string>(() => WayneKerrEmulationFile);
+                 .ObservesProperty<bool>(() => ShortCircuitActive)
+                 .ObservesProperty<bool>(() => DevicesDiscovered)
+                 .ObservesProperty<string>(() => ResultsFileName);
 
 
             OpenCircuitTestCommand = new DelegateCommand(ExecuteOpenCircuitTest, CanExecuteOpenCircuitTest)
                  .ObservesProperty<bool>(() => Emulate)
                  .ObservesProperty<bool>(() => Executing)
-                 .ObservesProperty<string>(() => ResultsFileName)
-                 .ObservesProperty<string>(() => KeithleyEmulationFile)
-                 .ObservesProperty<string>(() => WayneKerrEmulationFile);
+                 .ObservesProperty<bool>(() => DevicesDiscovered)
+                 .ObservesProperty<bool>(() => OpenCircuitActive)
+                 .ObservesProperty<string>(() => ResultsFileName);
 
 
             CVTestCommand = new DelegateCommand(ExecuteCVTest, CanExecuteCVTest)
-                .ObservesProperty<bool>(() => Emulate)
-                .ObservesProperty<bool>(() => Executing)
-                .ObservesProperty<string>(() => ResultsFileName)
-                .ObservesProperty<string>(() => KeithleyEmulationFile)
-                .ObservesProperty<string>(() => WayneKerrEmulationFile);
+                 .ObservesProperty<bool>(() => Emulate)
+                 .ObservesProperty<bool>(() => Executing)
+                 .ObservesProperty<bool>(() => DevicesDiscovered)
+                 .ObservesProperty<string>(() => ResultsFileName);
 
             StopCVTestCommand = new DelegateCommand(StopCVTest, CanExecuteStopCVTest)
-                                 .ObservesProperty<string>(() => ResultsFileName);
-               // .ObservesProperty<bool>(() => Executing);
+                 .ObservesProperty<bool>(() => Executing);
 
         }
 
@@ -120,6 +127,25 @@ namespace C_V_App.ViewModels
             get { return _executing; }
             set { SetProperty<bool>(ref _executing, value); }
         }
+
+        public bool DevicesDiscovered
+        {
+            get { return _devicesDiscovered; }
+            set { SetProperty<bool>(ref _devicesDiscovered, value); }
+        }
+
+        public bool OpenCircuitActive
+        {
+            get { return _openCircuitActive; }
+            set { SetProperty<bool>(ref _openCircuitActive, value); }
+        }
+
+        public bool ShortCircuitActive
+        {
+            get { return _shortCircuitActive; }
+            set { SetProperty<bool>(ref _shortCircuitActive, value); }
+        }
+
         public string StatusMessage
         {
             get { return _statusMessage; }
@@ -276,6 +302,8 @@ namespace C_V_App.ViewModels
                 Keithley.PortName = _keithley.SerialPort.PortName;
                 _keithley.SerialPort.Close();
             }
+
+            DevicesDiscovered = true;
             StatusMessage = "Devices Found";
         }
 
@@ -374,45 +402,37 @@ namespace C_V_App.ViewModels
 
         public bool CanExecuteShortCircuitTest()
         {
-            return !Executing &&
-                !Emulate || 
-                (!String.IsNullOrWhiteSpace(KeithleyEmulationFile) && !String.IsNullOrWhiteSpace(WayneKerrEmulationFile));
+            return DevicesDiscovered && !Executing && !_shortCircuitActive;
         }
 
         public void ExecuteShortCircuitTest()
         {
-            // ToDo:
-            StatusMessage = "Short Circuit Test Completed";
+            ShortCircuitActive = true;
+            
+            WayneKerr.GetModel().SerialSafeWrite(":CAL:OC-TRIM 3");
         }
         public ICommand OpenCircuitTestCommand { get; set; }
 
         public bool CanExecuteOpenCircuitTest()
         {
-            return !Executing &&
-                !Emulate ||
-                (!String.IsNullOrWhiteSpace(KeithleyEmulationFile) && !String.IsNullOrWhiteSpace(WayneKerrEmulationFile));
+            return DevicesDiscovered && !Executing && !_openCircuitActive;
         }
 
         public void ExecuteOpenCircuitTest()
         {
-            // ToDo:
-            StatusMessage = "Open Circuit Test Completed";
+            OpenCircuitActive = true;
+             WayneKerr.GetModel().SerialSafeWrite(":CAL:OC-TRIM 3");
         }
 
         public ICommand CVTestCommand { get; set; }
 
         public bool CanExecuteCVTest()
         {
-            bool notExecuting = !Executing;
             bool resultsFilePopulated = !String.IsNullOrWhiteSpace(ResultsFileName);
-            bool keithleyEmulationFilePopualted = !String.IsNullOrWhiteSpace(KeithleyEmulationFile);
-            bool wayneKerrEmulationFilePopulated = !String.IsNullOrWhiteSpace(WayneKerrEmulationFile);
-            bool connected = !Emulate;
 
-            return notExecuting &&
+            return !Executing &&
                 resultsFilePopulated &&
-                (connected ||
-                (keithleyEmulationFilePopualted && wayneKerrEmulationFilePopulated));
+                DevicesDiscovered;
         }
 
         public void ExecuteCVTest()
@@ -429,26 +449,33 @@ namespace C_V_App.ViewModels
             }
 
             _monitorStringBuilder.Clear();
+            Keithley.SetModelForExecution();
+            WayneKerr.SetModelForExecution();
             _cvScan.Frequencies = FrequencyList;
 
             Executing = true;
             MonitorText = "";
             StatusMessage = "Executing CV test";
 
-            _keithley.SerialPort.Open();
-            _wayneKerr.SerialPort.Open();
+            if (!_keithley.SerialPort.IsOpen)
+            {
+                _keithley.SerialPort.Open();
+            }
+            if (!_wayneKerr.SerialPort.IsOpen)
+            {
+                _wayneKerr.SerialPort.Open();
+            }
             _cancellationTokenSource = new CancellationTokenSource();
             Task task = Task.Factory.StartNew(() => _cvScan.Multiscan(_keithley, _wayneKerr, _cvEnv, _cancellationTokenSource.Token),
                 _cancellationTokenSource.Token).ContinueWith((parentTask) =>
                 {
-                    Executing = false;
-                    _cvScan.ResultsStream.Close();
-                    _keithley.ReleaseDevice();
-                    _wayneKerr.ReleaseDevice();
-                    StatusMessageDelegate("Execution completed");
+                    EndExecution();
+                    StatusMessageDelegate("End of C-V Program session");
                 }).ContinueWith((parentTask) =>
                 {
                     new ErrorHandlerViewModel(parentTask, ExceptionMessageBoxDelegate);
+                    EndExecution();
+                    StatusMessageDelegate("C-V Program failed");
                 }, TaskContinuationOptions.OnlyOnFaulted);
 
         }
@@ -456,7 +483,7 @@ namespace C_V_App.ViewModels
 
         public bool CanExecuteStopCVTest()
         {
-            return !String.IsNullOrWhiteSpace(ResultsFileName); // Executing;
+            return Executing;
         }
 
         public void StopCVTest()
@@ -492,6 +519,29 @@ namespace C_V_App.ViewModels
             {
                 var result = MessageBox.Show(message);
             });
+        }
+
+        public void EndExecution()
+        {
+            if (Executing)
+            {
+                 Executing = false;
+                _keithley.SerialPort.Close();
+                _wayneKerr.SerialPort.Close();
+                _cvScan.ResultsStream.Close();
+            }
+        }
+
+        private void ReleaseDevices()
+        {
+            _keithley.ReleaseDevice();
+            _wayneKerr.ReleaseDevice();
+        }
+
+        private void CloseProgram(object sender, CancelEventArgs args)
+        {
+            EndExecution();
+            ReleaseDevices();
         }
     }
 }

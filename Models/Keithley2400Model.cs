@@ -115,6 +115,10 @@ namespace C_V_App.Models
 
         public void SerialSafeWrite(string data)
         {
+            if (!_keithley2400SerialDevice.SerialPort.IsOpen)
+            {
+                _keithley2400SerialDevice.SerialPort.Open();
+            }
             _keithley2400SerialDevice.SerialSafeWrite(data);
         }
 

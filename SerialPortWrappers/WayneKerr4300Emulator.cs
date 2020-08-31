@@ -23,11 +23,13 @@ namespace C_V_App.SerialPortWrappers
         private const string DEVICE_NAME = WAYNE_KERR_4300;
         private string _level = "LEVEL";
 
-        private StreamWriter _debug;
+        private StreamWriter _DEBUG;
 
         public WayneKerr4300Emulator(string name) : base(name)
         {
-            _debug = new StreamWriter(@"D:\Steve\Projects\Microfab\C-V\C_V_App\wk_debug.dat");
+#if DEBUG
+            _DEBUG = new StreamWriter(@"D:\Steve\Projects\Microfab\C-V\C_V_App\wk_DEBUG.dat");
+#endif
 
             _commandResponses = new Dictionary<string, CommandResponse>()
             {
@@ -75,44 +77,58 @@ namespace C_V_App.SerialPortWrappers
 
         public new void Open()
         {
-            _debug.WriteLine("Open()");
+#if DEBUG
+            _DEBUG.WriteLine("Open()");
+#endif
             _openDelegates[(int)_state](nameof(Open));
         }
 
         public new void Close()
         {
-            _debug.WriteLine("Close()");
+#if DEBUG
+            _DEBUG.WriteLine("Close()");
+#endif
             _closeDelegates[(int)_state](nameof(Close));
         }
 
         public new void DiscardInBuffer()
         {
-            _debug.WriteLine("DiscardInBuffer()");
+#if DEBUG
+            _DEBUG.WriteLine("DiscardInBuffer()");
+#endif
             _nullActionDelegates[(int)_state](nameof(DiscardInBuffer));
         }
 
         public new void DiscardOutBuffer()
         {
-            _debug.WriteLine("DiscardOutBuffer()");
+#if DEBUG
+            _DEBUG.WriteLine("DiscardOutBuffer()");
+#endif
             _nullActionDelegates[(int)_state](nameof(DiscardOutBuffer));
 
         }
 
         public new void WriteLine(string line)
         {
-            _debug.WriteLine(line);
+#if DEBUG
+            _DEBUG.WriteLine(line);
+#endif
             _writeLineDelegates[(int)_state](nameof(WriteLine), line);
         }
 
         public new string ReadExisting()
         {
-            _debug.WriteLine("ReadExisting()");
+#if DEBUG
+            _DEBUG.WriteLine("ReadExisting()");
+#endif
             return _readLineDelegates[(int)_state](nameof(ReadExisting));
         }
 
         public new string ReadLine()
         {
-            _debug.WriteLine("ReadLine()");
+#if DEBUG
+            _DEBUG.WriteLine("ReadLine()");
+#endif
             return _readLineDelegates[(int)_state](nameof(ReadLine));
         }
 
@@ -123,7 +139,7 @@ namespace C_V_App.SerialPortWrappers
         private StringZero[] _readLineDelegates;
         //private VoidZero[] 
 
-        #region VoidZeroDelegates
+#region VoidZeroDelegates
         private void AlreadyOpen(string functionName)
         {
             throw new System.Exception($"{DEVICE_NAME}: Attempt to reopen already open port in function {functionName}");
@@ -149,8 +165,8 @@ namespace C_V_App.SerialPortWrappers
         {
 
         }
-        #endregion VoidZeroDelegates
-        #region VoidStringDelegates
+#endregion VoidZeroDelegates
+#region VoidStringDelegates
         private void NotOpen(string functionName, string arg)
         {
             throw new System.Exception($"{DEVICE_NAME}: Attempt to access port before opening in function {functionName}");
@@ -167,8 +183,8 @@ namespace C_V_App.SerialPortWrappers
             }
         }
 
-        #endregion VoidStringDelegates
-        #region StringZero
+#endregion VoidStringDelegates
+#region StringZero
         private string OpenReadLine(string functionname)
         {
             return _readLineResponse;
@@ -181,8 +197,8 @@ namespace C_V_App.SerialPortWrappers
         {
             throw new System.Exception($"{DEVICE_NAME}: Attempt to read from port before opening in function {functionName}");
         }
-        #endregion StringZero
-        #region Command Response
+#endregion StringZero
+#region Command Response
         public string DeviceName()
         {
             return DEVICE_NAME;
@@ -211,6 +227,6 @@ namespace C_V_App.SerialPortWrappers
         {
             return _level;
         }
-        #endregion Command Response
+#endregion Command Response
     }
 }

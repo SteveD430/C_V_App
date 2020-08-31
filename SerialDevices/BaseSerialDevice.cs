@@ -22,9 +22,9 @@ namespace C_V_App.SerialDevices
 
         public abstract void InitializeDevice(ISerialPortManager serialPortManager);
 
-        public void ReleaseDevice()
+        public virtual void ReleaseDevice()
         {
-            if (SerialPort != null)
+            if (SerialPort != null && SerialPort.IsOpen)
             {
                 SerialPort.Close();
             }

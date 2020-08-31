@@ -58,14 +58,17 @@ namespace C_V_App.ViewModels
             set { SetProperty<double>(ref _currentLimit, value); }
         }
 
-        public IKeithley2400Model Initialize()
+        public IKeithley2400Model GetModel()
+        {
+            return _keithley2400;
+        }
+
+        public void SetModelForExecution()
         {
             _keithley2400.StartVoltage = StartVoltage;
             _keithley2400.FinalVoltage = FinalVoltage;
             _keithley2400.IncrementVoltage = IncrementVoltage;
             _keithley2400.CurrentLimit = CurrentLimit;
-
-            return _keithley2400;
         }
     }
 }

@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using C_V_App.ViewModels;
 
 namespace C_V_App.Views
 {
@@ -23,5 +24,6 @@ namespace C_V_App.Views
         {
             InitializeComponent();
         }
+
     }
 }
