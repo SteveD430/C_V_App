@@ -107,7 +107,7 @@ namespace C_V_App.SerialDevices
                 }
                 catch (Exception ex)
                 {
-                    throw new PortCommunicationException(ex.Message, ex);
+                    // Ignore Port error. throw new PortCommunicationException(ex.Message, ex);
                 }
             }
             return false;

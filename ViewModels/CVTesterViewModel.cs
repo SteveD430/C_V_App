@@ -29,6 +29,7 @@ namespace C_V_App.ViewModels
         private StringBuilder _monitorStringBuilder;
         private string _monitorText;
         private string _resultsFilename;
+        private string _description;
         private string _statusMessage;
         private double _newFrequency;
         private bool _shortCircuitActive;
@@ -70,7 +71,7 @@ namespace C_V_App.ViewModels
             _openCircuitActive = false;
             _devicesDiscovered = false;
             Executing = false;
-            Emulate = true;
+            Emulate = false; // SD++
 
 
             ReadConfigCommand = new DelegateCommand(ExecuteReadConfig, CanExecuteReadConfig)
@@ -164,6 +165,11 @@ namespace C_V_App.ViewModels
             set { SetProperty<string>(ref _wayneKerrEmulationFile, value); }
         }
 
+        public string Description
+        {
+            get { return _description; }
+            set { SetProperty<string>(ref _description, value); }
+        }
         public string MonitorText
         {
             get { return _monitorText; }
@@ -255,6 +261,10 @@ namespace C_V_App.ViewModels
 
         public void ExecuteDiscovery()
         {
+
+            DevicesDiscovered = true;
+            StatusMessage = "Discovering Devices";
+
             _cvEnv = new CVEnvironment(KeithleyEmulationFile, WayneKerrEmulationFile, Emulate);
             var serialPortManager = _serialPortManagerSelector.GetSerialManager(_cvEnv);
 
@@ -286,6 +296,7 @@ namespace C_V_App.ViewModels
             }
             if (_wayneKerr.SerialPort == null)
             {
+                DevicesDiscovered = false;
                 StatusMessage = "Wayne Kerr device not found";
             }
             else
@@ -295,6 +306,7 @@ namespace C_V_App.ViewModels
             }
             if (_keithley.SerialPort == null)
             {
+                DevicesDiscovered = false;
                 StatusMessage = "Keithley device not found";
             }
             else
@@ -302,9 +314,10 @@ namespace C_V_App.ViewModels
                 Keithley.PortName = _keithley.SerialPort.PortName;
                 _keithley.SerialPort.Close();
             }
-
-            DevicesDiscovered = true;
-            StatusMessage = "Devices Found";
+            if (DevicesDiscovered)
+            {
+                StatusMessage = "Devices sucessfully discovered";
+            }
         }
 
         public ICommand ReadConfigCommand { get; set; }
@@ -333,7 +346,7 @@ namespace C_V_App.ViewModels
             }
             catch (Exception ex)
             {
-
+                StatusMessage = $"Error {ex.Message} reading Configuration File: {ConfigurationFile}";
             }
 
         }
@@ -364,7 +377,7 @@ namespace C_V_App.ViewModels
             }
             catch (Exception ex)
             {
-
+                StatusMessage = $"Error {ex.Message} saving Configuration File: {ConfigurationFile}";
             }
 
         }
@@ -447,11 +460,12 @@ namespace C_V_App.ViewModels
                 StatusMessage = $"Unable to open {ResultsFileName} for writing: {ex.Message}";
                 return;
             }
-
+            _cvScan.Description = Description;
+            _cvScan.Frequencies = FrequencyList;
             _monitorStringBuilder.Clear();
             Keithley.SetModelForExecution();
             WayneKerr.SetModelForExecution();
-            _cvScan.Frequencies = FrequencyList;
+
 
             Executing = true;
             MonitorText = "";

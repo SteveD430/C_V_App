@@ -20,14 +20,14 @@ namespace C_V_App.SerialPortWrappers
         private delegate string SubSystemCommandFuncDelegate(string arg);
 
 
-        private SerialPortStates _state;
+        // private SerialPortStates _state;
         private string _emulatorFileName;
 
-        private Dictionary<string, CommonCommandActionDelegate> _commonActionCommands;
-        private Dictionary<string, CommonCommandFuncDelegate> _commonFuncCommands;
+        //private Dictionary<string, CommonCommandActionDelegate> _commonActionCommands;
+        // private Dictionary<string, CommonCommandFuncDelegate> _commonFuncCommands;
 
-        private Dictionary<string, SubSystemCommandActionDelegate> _subSystemActionCommands;
-        private Dictionary<string, SubSystemCommandFuncDelegate> _subSysyemFuncCommands;
+        // private Dictionary<string, SubSystemCommandActionDelegate> _subSystemActionCommands;
+        // private Dictionary<string, SubSystemCommandFuncDelegate> _subSysyemFuncCommands;
 
 
         public WanyeKerr4300V2Emulator(string name) : base (name)

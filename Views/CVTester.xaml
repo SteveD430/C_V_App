@@ -9,7 +9,7 @@
         xmlns:converters="clr-namespace:C_V_App.Converters"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="CVTester" Height="870" Width="780">
+        Title="CVTester" Height="900" Width="780">
   <Window.Resources>
     <converters:SelectedItemsToFlagConverter x:Key="SelectedItemsToFlag" />
     <converters:InvertBooleanConverter x:Key="InvertBoolean" />
@@ -33,7 +33,7 @@
             <StackPanel Grid.Row="0"  Orientation="Horizontal" Height="Auto">
             <Label x:Name="modeLbl" Margin="2" VerticalAlignment="Center">Mode:</Label>
             <RadioButton x:Name="emulationRb" Margin="2" IsChecked="{Binding Emulate}" VerticalAlignment="Center">Emulation</RadioButton>
-            <RadioButton x:Name="connectedRb" Margin="2" VerticalAlignment="Center">Connected</RadioButton>
+            <RadioButton x:Name="connectedRb" Margin="2" IsChecked="{Binding Emulate, Converter={StaticResource InvertBoolean}}"  VerticalAlignment="Center">Connected</RadioButton>
           </StackPanel>
           <ucs:FileSelectionControl x:Name="KeithleyUsc" HorizontalAlignment="Left" Grid.Row="1" 
                                     IsEnabled="{Binding ElementName=emulationRb, Path=IsChecked}"
@@ -155,17 +155,20 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
-          <ucs:FileSelectionControl x:Name="LogFileUsc" HorizontalAlignment="Left" Grid.Row="0" Grid.ColumnSpan="4" Margin="3"
+          <Label x:Name="DescriptionLbl" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right">Description:</Label>
+          <TextBox x:Name="DescriptionTbx" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="9 2 10 2" Text="{Binding Description}"></TextBox>
+          <ucs:FileSelectionControl x:Name="LogFileUsc" HorizontalAlignment="Left" Grid.Row="1" Grid.ColumnSpan="4" Margin="3"
                                     FileName ="{Binding Path=ResultsFileName, Mode=TwoWay}"
                                     IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
                                     AllowCreateNewFile="true">Results File:</ucs:FileSelectionControl>
-          <Button x:Name="ShortCircuitBtn" Grid.Row="1" Grid.Column="0" Width="100" Margin="10" Command="{Binding ShortCircuitTestCommand}">Short Circuit Test</Button>
-          <Button x:Name="OpenCircuitBtn" Grid.Row="1" Grid.Column="1" Width="100" Margin="10" Command="{Binding OpenCircuitTestCommand}">Open Circuit Test</Button>
-          <Button x:Name="ExecuteBtn" Grid.Row="1" Grid.Column="2" Width="100" Margin="10" Command="{Binding CVTestCommand}">Execute</Button>
-          <Button x:Name="StopBtn" Grid.Row="1" Grid.Column="3" Width="100" Margin="10" Command="{Binding StopCVTestCommand}">Stop</Button>
-          <Label x:Name="ResultsLbl" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" Margin="2">Output:</Label>
-          <TextBox x:Name="Resultstbx" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Margin="2" 
+          <Button x:Name="ShortCircuitBtn" Grid.Row="2" Grid.Column="0" Width="100" Margin="10" Command="{Binding ShortCircuitTestCommand}">Short Circuit Test</Button>
+          <Button x:Name="OpenCircuitBtn" Grid.Row="2" Grid.Column="1" Width="100" Margin="10" Command="{Binding OpenCircuitTestCommand}">Open Circuit Test</Button>
+          <Button x:Name="ExecuteBtn" Grid.Row="2" Grid.Column="2" Width="100" Margin="10" Command="{Binding CVTestCommand}">Execute</Button>
+          <Button x:Name="StopBtn" Grid.Row="2" Grid.Column="3" Width="100" Margin="10" Command="{Binding StopCVTestCommand}">Stop</Button>
+          <Label x:Name="ResultsLbl" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right" Margin="2">Output:</Label>
+          <TextBox x:Name="Resultstbx" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Margin="2" 
                    Width="400"  Height="200" MaxHeight="200" ScrollViewer.VerticalScrollBarVisibility="Auto"
                    Text="{Binding MonitorText}"/>
         </Grid> 

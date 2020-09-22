@@ -2,6 +2,7 @@
 
 namespace C_V_App.Exceptions
 {
+    [Serializable]
     public class PortCommunicationException : Exception
     {
         public PortCommunicationException()

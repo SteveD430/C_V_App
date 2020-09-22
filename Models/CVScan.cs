@@ -18,6 +18,8 @@ namespace C_V_App.Models
         private IKeithley2400Model _keithley2400;
         private IWayneKerr4300Model _wayneKerr4300;
 
+        public string Description { get; set; }
+
         public ICollection<double> Frequencies { get; set; }
 
         public StreamWriter ResultsStream { get; set; }
@@ -32,6 +34,11 @@ namespace C_V_App.Models
             _keithley2400 = keithley2400;
             _wayneKerr4300 = wayneKerr4300;
 
+
+            WriteComment(DateTime.Now.ToString());
+            string senseMode = "KT24 sensing mode is " + keithley2400.SerialSafeRead(":SYSTem:RSENse?");
+            WriteComment(senseMode);
+            WriteComment(Description);
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -77,12 +84,11 @@ namespace C_V_App.Models
             {
                 version = Assembly.GetEntryAssembly().GetName().Version.ToString();
             }
-            DataWriteLine($" Date: {DateTime.Today}");
-            DataWriteLine($"# Version Information: {version}");
-            DataWriteLine($"# {_wayneKerr4300.ReportingFields}");
-            string notes = "# Using measurement frequency " + _wayneKerr4300.SerialSafeRead(":MEAS:FREQ?") + " Hz ";
+            WriteComment($"Version Information: {version}");
+            WriteComment($"{_wayneKerr4300.ReportingFields}");
+            string notes = "Using measurement frequency " + _wayneKerr4300.SerialSafeRead(":MEAS:FREQ?") + " Hz ";
             notes += " at a drive level of " + _wayneKerr4300.SerialSafeRead(":MEAS:LEV?") + " volts.";
-            DataWriteLine(notes);
+            WriteComment(notes);
             string v_set = "SOUR:VOLT:LEV ";
             string v_send;
             for (double vout = _keithley2400.StartVoltage; vout <= _keithley2400.FinalVoltage; vout += _keithley2400.IncrementVoltage)
@@ -162,6 +168,12 @@ namespace C_V_App.Models
         {
             _keithley2400.ClearBuffers();
             _wayneKerr4300.ClearBuffers();
+        }
+
+        private void WriteComment (string comment)
+        {
+            ResultsStream.Write("# ");
+            ResultsStream.WriteLine(comment);
         }
     }
 }

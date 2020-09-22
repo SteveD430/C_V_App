@@ -70,7 +70,7 @@ namespace C_V_App.Models
             }
             catch (Exception ex)
             {
-                throw new ErrorOpeningConfigFileException(filename);
+                throw new ErrorOpeningConfigFileException(filename, ex);
             }
         }
 

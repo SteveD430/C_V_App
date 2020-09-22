@@ -3,6 +3,7 @@
 
 namespace C_V_App.Exceptions
 {
+    [Serializable]
     public class EmulationFileReadException : Exception
     {
         public EmulationFileReadException()

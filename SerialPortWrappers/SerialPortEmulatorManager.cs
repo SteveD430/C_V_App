@@ -8,17 +8,13 @@ namespace C_V_App.SerialPortWrappers
         private const string COM1 = "COM1";
         private const string COM2 = "COM2";
         private ICVEnvironment _CVEnvironment;
-        private readonly Dictionary<string, ISerialPortEmulator> _portEmulators;
+        private Dictionary<string, ISerialPortEmulator> _portEmulators;
         private readonly string[] _ports;
 
         public SerialPortEmulatorManager()
         {
             _ports = new string[] { COM1, COM2 };
-            _portEmulators = new Dictionary<string, ISerialPortEmulator>()
-            {
-                {_ports[0], new Keithley2400Emulator(_ports[0]) },
-                {_ports[1], new WayneKerr4300Emulator(_ports[1]) }
-            };
+
         }
 
         public IEnumerable<string> GetPortNames()
@@ -26,13 +22,31 @@ namespace C_V_App.SerialPortWrappers
             return _ports;
         }
 
+        private Dictionary<string, ISerialPortEmulator> PortEmulators
+        {
+            get
+            {
+                if (_portEmulators == null)
+                {
+                    _portEmulators = new Dictionary<string, ISerialPortEmulator>()
+                    {
+                        {_ports[0], new Keithley2400Emulator(_ports[0]) },
+                        {_ports[1], new WayneKerr4300Emulator(_ports[1]) }
+                    };
+                }
+                return _portEmulators;
+            }
+        }
+
+
+
         public IEnumerable<string> GetNotAllocatedPortNames()
         {
             ISerialPortEmulator port;
             List<string> notAllocatedPorts = new List<string>();
             foreach (var portName in _ports)
             {
-                if (_portEmulators.TryGetValue(portName, out port) && !port.IsOpen)
+                if (PortEmulators.TryGetValue(portName, out port) && !port.IsOpen)
                 {
                     notAllocatedPorts.Add(portName);
                 }
@@ -43,7 +57,7 @@ namespace C_V_App.SerialPortWrappers
         public ISerialPort GetSerialPort(string name)
         {
             ISerialPortEmulator port;
-            if( _portEmulators.TryGetValue(name, out port))
+            if(PortEmulators.TryGetValue(name, out port))
             {
                 return port;
             }
@@ -57,8 +71,8 @@ namespace C_V_App.SerialPortWrappers
             set
             {
                 _CVEnvironment = value;
-                _portEmulators[COM1].EmulatorFileName = _CVEnvironment.KeithleyEmulationFilename;
-                _portEmulators[COM2].EmulatorFileName = _CVEnvironment.WayneKerrEmulationFilename;
+                PortEmulators[COM1].EmulatorFileName = _CVEnvironment.KeithleyEmulationFilename;
+                PortEmulators[COM2].EmulatorFileName = _CVEnvironment.WayneKerrEmulationFilename;
             }
         }
     }

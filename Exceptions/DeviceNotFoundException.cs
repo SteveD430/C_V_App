@@ -2,6 +2,7 @@
 
 namespace C_V_App.Exceptions
 {
+    [Serializable]
     public class DeviceNotFoundException : Exception
     {
         public DeviceNotFoundException()

@@ -11,16 +11,21 @@ namespace C_V_App.Converters
         public object Convert(object value, Type targetType, object parameter,
             System.Globalization.CultureInfo culture)
         {
-            if (targetType != typeof(bool))
-                throw new InvalidOperationException("The target must be a boolean");
-
-            return !(bool)value;
+            bool result;
+            if (bool.TryParse(value.ToString(), out result))
+            {
+                return !result;
+            }
+            else
+            {
+                throw new Exception("Parameter must be boolean");
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter,
             System.Globalization.CultureInfo culture)
         {
-            throw new NotSupportedException();
+            return !(bool)value;
         }
 
         #endregion
