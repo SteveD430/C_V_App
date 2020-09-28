@@ -28,6 +28,7 @@ namespace C_V_App.SerialDevices
             {
                 SerialPort.Close();
             }
+            SerialPort = null;
         }
         #endregion ISerialDevice
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO.Ports;
-using System.Threading;
+using C_V_App.Exceptions;
 
 
 namespace C_V_App.SerialPortWrappers
@@ -35,9 +35,17 @@ namespace C_V_App.SerialPortWrappers
             return portNames;
         }
 
-        public ISerialPort GetSerialPort(string name)
+        public ISerialPort GetSerialPort(string portName)
         {
-            return new WrappedSerialPort(name);
+            ISerialPort port;
+            if (_serialPorts.TryGetValue(portName, out port))
+            {
+                return port;
+            }
+            else
+            {
+                throw new PortNotKnownException($"Request for unknown port - {portName}");
+            }
         }
     }
 }

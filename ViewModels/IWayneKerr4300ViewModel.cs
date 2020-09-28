@@ -11,6 +11,8 @@ namespace C_V_App.ViewModels
 
         IWayneKerr4300Model GetModel();
 
+        void ReleaseDevice();
+
         void SetModelForExecution();
     }
 }

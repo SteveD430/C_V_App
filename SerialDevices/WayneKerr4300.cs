@@ -23,21 +23,6 @@ namespace C_V_App.SerialDevices
 
         private ISerialPortManager _serialPortManager;
 
-        private IList<string> _reportingFields;
-
-        private string[] WK_FUNCTIONS = { "Capacitance",
-        "Inductance",
-        "Reactance",
-        "Susceptance",
-        "Impedance",
-        "Admittance",
-        "Quality factor",
-        "Dissipation factor",
-        "Resistance",
-        "Conductance",
-        "DC Resistance"
-        };
-
         #region ISerialController
         public void RequestData()
         {
@@ -62,7 +47,6 @@ namespace C_V_App.SerialDevices
         public override void InitializeDevice(ISerialPortManager serialPortManager)
         {
             _serialPortManager = serialPortManager ?? throw new ArgumentNullException(nameof(serialPortManager));
-            _reportingFields = new List<string>();
             if (DiscoverDevice(_serialPortManager))
             {
                 ConfigurePort(SerialPort);
@@ -70,7 +54,7 @@ namespace C_V_App.SerialDevices
             else
             {
                 throw new DeviceNotFoundException("No Wayne Kerr 4300 Device available");
-            }            
+            }
         }
 
         public override void ReleaseDevice()
@@ -103,7 +87,7 @@ namespace C_V_App.SerialDevices
                         return true;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     // Ignore port error. 
                 }
@@ -150,36 +134,5 @@ namespace C_V_App.SerialDevices
             serialPort.DiscardOutBuffer();
         }
 
-        private void Initialize(ISerialPortManager serialPortManager)
-        {
-            // Initialization of the WK4300: see Project for C_V_105 for original source.
-            SerialSafeWrite("MEAS:EQU-CCT PAR");
-            SerialSafeWrite(":MEAS:SPEED SLOW ");
-
-            SerialSafeWrite(":MEAS:FUNC1 C");
-            Thread.Sleep(250);
-
-            SerialSafeWrite(":MEAS:FUNC2 D");
-            SerialSafeWrite(":MEAS:FREQ 0.5e6");
-            Thread.Sleep(1000);
-
-            // Get Reporting Field names;
-            _reportingFields.Add(GetReportField(":MEAS:FUNC1?"));
-            _reportingFields.Add(GetReportField(":MEAS:FUNC2?"));
-        }
-
-        private string GetReportField(string fieldRequest)
-        {
-            int functionId;
-            string functionEntry = SerialSafeRead(fieldRequest);
-            if (Int32.TryParse(functionEntry, out functionId) && functionId >= 0 && functionId < WK_FUNCTIONS.Length)
-            {
-                return WK_FUNCTIONS[functionId];
-            }
-            else
-            {
-                return "Unknown Function";
-            }
-        }
     }
 }

@@ -34,7 +34,6 @@ namespace C_V_App.Models
             _keithley2400 = keithley2400;
             _wayneKerr4300 = wayneKerr4300;
 
-
             WriteComment(DateTime.Now.ToString());
             string senseMode = "KT24 sensing mode is " + keithley2400.SerialSafeRead(":SYSTem:RSENse?");
             WriteComment(senseMode);
@@ -77,7 +76,8 @@ namespace C_V_App.Models
 
         private void C_V_Scan(CancellationToken token)
         {
-            string response = "";
+            string ktResponse = "";
+            string wkResponse = "";
             // Write heads list to output file and it should have # on the front
             string version = "Not Known";
             if (Assembly.GetEntryAssembly() != null && Assembly.GetEntryAssembly().GetName() != null)
@@ -112,7 +112,7 @@ namespace C_V_App.Models
                             // send v_start out in steps gently
                             _keithley2400.SerialSafeWrite(v_send);
                             Thread.Sleep(100);
-                            response = _keithley2400.SerialSafeRead("READ?");
+                            ktResponse = _keithley2400.SerialSafeRead("READ?");
                         }
 
                     }
@@ -131,20 +131,21 @@ namespace C_V_App.Models
                 Thread.Sleep(50); // Hold for 50 ms
                 try
                 {
-                    response = _keithley2400.SerialSafeRead("READ?");
+                    ktResponse = _keithley2400.SerialSafeRead("READ?");
                 }
                 catch (Exception tx)
                 {
                     Monitor($"K24 Write Error: {tx.Message}");
                 }
 
-                Monitor(response);   // so on its own this code at this line would produce an I-V if wired for it
-                ResultsStream.Write("{0},", response); //File is written with V then I values from K2400
+                // so on its own this code at this line would produce an I-V if wired for it
+                ResultsStream.Write("{0},", ktResponse); //File is written with V then I values from K2400
 
                 // Now we should be able to add Func1 and Func2 values from the WK4300 to the string response 
 
-                response =  _wayneKerr4300.SerialSafeRead(":TRIG");
-                DataWriteLine(response);
+                wkResponse =  _wayneKerr4300.SerialSafeRead(":TRIG");
+                DataWriteLine(wkResponse);
+                Monitor(ktResponse + " " + wkResponse);
                 ClearBuffers(); // clean up all the IO buffers on each loop
             }   //end of measurement voltage loop
             _keithley2400.SerialSafeWrite("SOUR:VOLT:LEV 0"); // set the supply to zero volts at the end

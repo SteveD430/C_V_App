@@ -63,12 +63,19 @@ namespace C_V_App.ViewModels
             return _keithley2400;
         }
 
+        public void ReleaseDevice()
+        {
+            _keithley2400.ReleaseDevice();
+            PortName = "";
+        }
+
         public void SetModelForExecution()
         {
             _keithley2400.StartVoltage = StartVoltage;
             _keithley2400.FinalVoltage = FinalVoltage;
             _keithley2400.IncrementVoltage = IncrementVoltage;
             _keithley2400.CurrentLimit = CurrentLimit;
+            _keithley2400.Initialize(KEITHLEY_CONFIG.V);
         }
     }
 }

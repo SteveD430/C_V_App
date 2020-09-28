@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.IO.Ports;
 using C_V_App.Exceptions;
 
 namespace C_V_App.SerialPortWrappers
 {
     [System.ComponentModel.DesignerCategory("Code")]
-    public class WayneKerr4300Emulator : WrappedSerialPort, ISerialPortEmulator
+    public class WayneKerr4300Emulator : WrappedEmulatorSerialPort, ISerialPortEmulator
     {
         private SerialPortStates _state;
         private string _emulatorFileName;
@@ -23,12 +24,13 @@ namespace C_V_App.SerialPortWrappers
         private const string DEVICE_NAME = WAYNE_KERR_4300;
         private string _level = "LEVEL";
 
-        private StreamWriter _DEBUG;
-
         public WayneKerr4300Emulator(string name) : base(name)
         {
 #if DEBUG
-            _DEBUG = new StreamWriter(@"D:\Steve\Projects\Microfab\C-V\C_V_App\wk_DEBUG.dat");
+            Debug = new StreamWriter(@"D:\Steve\Projects\Microfab\C-V\C_V_App\wkDebug.dat");
+#else
+            var memStream = new MemoryStream(100);
+            Debug = new StreamWriter(memStream);
 #endif
 
             _commandResponses = new Dictionary<string, CommandResponse>()
@@ -42,13 +44,13 @@ namespace C_V_App.SerialPortWrappers
             _readLineResponse = null;
             _state = SerialPortStates.Closed;
 
-            _openDelegates = new VoidZero[] { AlreadyOpen, AlreadyOpen, Closed2Open };
-            _closeDelegates = new VoidZero[] { Open2Closed, Open2Closed, NotOpen };
-            _nullActionDelegates = new VoidZero[] { NullAction, NullAction, NotOpen };
+            _openDelegates = new VoidZero[] { AlreadyOpen, Closed2Open };
+            _closeDelegates = new VoidZero[] { Open2Closed,  NotOpen };
+            _nullActionDelegates = new VoidZero[] { NullAction, NotOpen };
 
-            _writeLineDelegates = new VoidString[] { WriteLineDelegate, WriteLineDelegate, NotOpen };
+            _writeLineDelegates = new VoidString[] { WriteLineDelegate, NotOpen };
 
-            _readLineDelegates = new StringZero[] { OpenReadLine, InitializedReadLine, NotOpenReadLine };
+            _readLineDelegates = new StringZero[] { OpenReadLine, NotOpenReadLine };
         }
 
         // ISerialPortEmulator
@@ -73,62 +75,49 @@ namespace C_V_App.SerialPortWrappers
 
         // ISerialPort
         // ===========
-        public new bool IsOpen => _state != SerialPortStates.Closed;
+ 
+        public new bool IsOpen => _state == SerialPortStates.Open;
 
         public new void Open()
         {
-#if DEBUG
-            _DEBUG.WriteLine("Open()");
-#endif
+            Debug.WriteLine("Open()");
             _openDelegates[(int)_state](nameof(Open));
         }
 
         public new void Close()
         {
-#if DEBUG
-            _DEBUG.WriteLine("Close()");
-#endif
+            Debug.WriteLine("Close()");
             _closeDelegates[(int)_state](nameof(Close));
         }
 
         public new void DiscardInBuffer()
         {
-#if DEBUG
-            _DEBUG.WriteLine("DiscardInBuffer()");
-#endif
+            Debug.WriteLine("DiscardInBuffer()");
             _nullActionDelegates[(int)_state](nameof(DiscardInBuffer));
         }
 
         public new void DiscardOutBuffer()
         {
-#if DEBUG
-            _DEBUG.WriteLine("DiscardOutBuffer()");
-#endif
+            Debug.WriteLine("DiscardOutBuffer()");
             _nullActionDelegates[(int)_state](nameof(DiscardOutBuffer));
 
         }
 
         public new void WriteLine(string line)
         {
-#if DEBUG
-            _DEBUG.WriteLine(line);
-#endif
+            Debug.WriteLine(line);
             _writeLineDelegates[(int)_state](nameof(WriteLine), line);
         }
 
         public new string ReadExisting()
         {
-#if DEBUG
-            _DEBUG.WriteLine("ReadExisting()");
-#endif
+            Debug.WriteLine("ReadExisting()");
             return _readLineDelegates[(int)_state](nameof(ReadExisting));
         }
 
         public new string ReadLine()
         {
-#if DEBUG
-            _DEBUG.WriteLine("ReadLine()");
-#endif
+            Debug.WriteLine("ReadLine()");
             return _readLineDelegates[(int)_state](nameof(ReadLine));
         }
 
@@ -189,10 +178,7 @@ namespace C_V_App.SerialPortWrappers
         {
             return _readLineResponse;
         }
-        private string InitializedReadLine(string functionname)
-        {
-            return "Initialized";
-        }
+
         private string NotOpenReadLine(string functionName)
         {
             throw new System.Exception($"{DEVICE_NAME}: Attempt to read from port before opening in function {functionName}");

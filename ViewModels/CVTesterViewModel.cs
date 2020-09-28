@@ -180,21 +180,6 @@ namespace C_V_App.ViewModels
 
         public IWayneKerr4300ViewModel WayneKerr { get; }
 
-        //Discovery Properties
-        //====================
-        public string KeithleyPort
-        {
-            get { return Keithley.PortName; }
-            set { Keithley.PortName = value; }
-        }
-
-        public string WayneKerrPort
-        {
-            get { return WayneKerr.PortName; }
-            set { WayneKerr.PortName = value; }
-        }
-
-
         // Configuration Properties
         // ========================
         public string ConfigurationFile
@@ -264,6 +249,8 @@ namespace C_V_App.ViewModels
 
             DevicesDiscovered = true;
             StatusMessage = "Discovering Devices";
+            WayneKerr.ReleaseDevice();
+            Keithley.ReleaseDevice();
 
             _cvEnv = new CVEnvironment(KeithleyEmulationFile, WayneKerrEmulationFile, Emulate);
             var serialPortManager = _serialPortManagerSelector.GetSerialManager(_cvEnv);
@@ -294,25 +281,35 @@ namespace C_V_App.ViewModels
             {
                 ExceptionMessageBoxDelegate(ex.Message);
             }
+
+            //Check if devices discovered
             if (_wayneKerr.SerialPort == null)
             {
                 DevicesDiscovered = false;
+                WayneKerr.PortName = "";
                 StatusMessage = "Wayne Kerr device not found";
             }
             else
             {
                 WayneKerr.PortName = _wayneKerr.SerialPort.PortName;
-                _wayneKerr.SerialPort.Close();
+                if (_wayneKerr.SerialPort.IsOpen)
+                {
+                    _wayneKerr.SerialPort.Close();
+                }
             }
             if (_keithley.SerialPort == null)
             {
                 DevicesDiscovered = false;
+                Keithley.PortName = "";
                 StatusMessage = "Keithley device not found";
             }
             else
             {
                 Keithley.PortName = _keithley.SerialPort.PortName;
-                _keithley.SerialPort.Close();
+                if (_keithley.SerialPort.IsOpen)
+                {
+                    _keithley.SerialPort.Close();
+                }
             }
             if (DevicesDiscovered)
             {
@@ -460,6 +457,9 @@ namespace C_V_App.ViewModels
                 StatusMessage = $"Unable to open {ResultsFileName} for writing: {ex.Message}";
                 return;
             }
+            var serialPortManager = _serialPortManagerSelector.GetSerialManager(_cvEnv);
+            Keithley.GetModel().InitializeDevice(serialPortManager);
+            WayneKerr.GetModel().InitializeDevice(serialPortManager);
             _cvScan.Description = Description;
             _cvScan.Frequencies = FrequencyList;
             _monitorStringBuilder.Clear();

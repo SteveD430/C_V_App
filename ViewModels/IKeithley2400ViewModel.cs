@@ -15,6 +15,8 @@ namespace C_V_App.ViewModels
 
         double CurrentLimit { get; set; }
 
+        void ReleaseDevice();
+
         IKeithley2400Model GetModel();
 
         void SetModelForExecution();

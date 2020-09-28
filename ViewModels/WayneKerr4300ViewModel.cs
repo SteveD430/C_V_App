@@ -33,9 +33,16 @@ namespace C_V_App.ViewModels
             return _wayneKerr4300;
         }
 
+        public void ReleaseDevice()
+        {
+            _wayneKerr4300.ReleaseDevice();
+            PortName = "";
+        }
+
         public void SetModelForExecution()
         {
             _wayneKerr4300.Amplitude = Amplitude;
+            _wayneKerr4300.Initialize();
         }
     }
 }

@@ -33,7 +33,5 @@ namespace C_V_App.SerialPortWrappers
         void DiscardInBuffer();
 
         void DiscardOutBuffer();
-
-        string[] GetPortNames();
     }
 }

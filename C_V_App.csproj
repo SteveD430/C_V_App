@@ -113,6 +113,7 @@
     <Compile Include="Exceptions\EmulationFileReadException.cs" />
     <Compile Include="Exceptions\ErrorOpeningConfigFileException.cs" />
     <Compile Include="Exceptions\PortCommunicationException.cs" />
+    <Compile Include="Exceptions\PortNotKnownException.cs" />
     <Compile Include="Exceptions\RetreivingDataException.cs" />
     <Compile Include="Exceptions\UnrecognisedConfigCommandException.cs" />
     <Compile Include="Models\ConfigCommand.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="SerialPortWrappers\SerialPortManagerSelector.cs" />
     <Compile Include="SerialPortWrappers\WanyeKerr4300V2Emulator.cs" />
     <Compile Include="SerialPortWrappers\WayneKerr4300Emulator.cs" />
+    <Compile Include="SerialPortWrappers\WrappedEmulatorSerialPort.cs" />
     <Compile Include="SerialPortWrappers\WrappedSerialPort.cs" />
     <Compile Include="StringExtentions\StringExtensions.cs" />
     <Compile Include="UserControls\EditableComboBox.xaml.cs">

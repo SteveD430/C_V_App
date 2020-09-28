@@ -9,5 +9,7 @@ namespace C_V_App.Models
 
         double Amplitude { get; set; }
 
+        void Initialize();
+
     }
 }

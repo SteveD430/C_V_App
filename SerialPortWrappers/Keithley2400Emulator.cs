@@ -7,11 +7,10 @@ using C_V_App.Exceptions;
 namespace C_V_App.SerialPortWrappers
 { 
     [System.ComponentModel.DesignerCategory("Code")]
-    public class Keithley2400Emulator : WrappedSerialPort, ISerialPortEmulator
+    public class Keithley2400Emulator : WrappedEmulatorSerialPort, ISerialPortEmulator
     {
         private SerialPortStates _state;
         private string _emulatorFileName;
-        private StreamWriter _DEBUG;
 
         private delegate void VoidZero(string functionName);
         private delegate void VoidString(string functionName, string arg);
@@ -33,18 +32,22 @@ namespace C_V_App.SerialPortWrappers
                 {"SYSTem:RSENse?", Sensors }
             };
 #if DEBUG
-            _DEBUG = new StreamWriter(@"D:\Steve\Projects\Microfab\C-V\C_V_App\kt_DEBUG.dat");
+            Debug = new StreamWriter(@"D:\Steve\Projects\Microfab\C-V\C_V_App\kt_DEBUG.dat");
+#else
+            var memStream = new MemoryStream(100);
+            Debug = new StreamWriter(memStream);
 #endif
+
             _readLineResponse = null;
             _state = SerialPortStates.Closed;
 
-            _openDelegates = new VoidZero[] { AlreadyOpen, AlreadyOpen, Closed2Open };
-            _closeDelegates = new VoidZero[] { Open2Closed, Open2Closed, NotOpen };
-            _nullActionDelegates = new VoidZero[] { NullAction, NullAction, NotOpen };
+            _openDelegates = new VoidZero[] { AlreadyOpen, Closed2Open };
+            _closeDelegates = new VoidZero[] { Open2Closed, NotOpen };
+            _nullActionDelegates = new VoidZero[] { NullAction, NotOpen };
 
-            _writeLineDelegates = new VoidString[] { WriteLineDelegate, WriteLineDelegate, NotOpen };
+            _writeLineDelegates = new VoidString[] { WriteLineDelegate, NotOpen };
 
-            _readLineDelegates = new StringZero[] { OpenReadLine, InitializedReadLine, NotOpenReadLine };
+            _readLineDelegates = new StringZero[] { OpenReadLine, NotOpenReadLine };
         }
 
         // ISerialPortEmulator
@@ -68,70 +71,63 @@ namespace C_V_App.SerialPortWrappers
 
         public StreamReader EmulationDataStream { get; set; }
 
-        // ISerialPort
-        // ===========
-        public new bool IsOpen => _state != SerialPortStates.Closed;
+        public new bool IsOpen => _state == SerialPortStates.Open;
 
         public new void Open()
         {
-#if DEBUG
-            _DEBUG.WriteLine("Open()");
-            _DEBUG.Flush();
-#endif
+            Debug.WriteLine("Open()");
+            Debug.Flush();
+
             _openDelegates[(int)_state](nameof(Open));
         }
 
         public new void Close()
         {
-#if DEBUG
-            _DEBUG.WriteLine("Close()");
-            _DEBUG.Flush();
-#endif
+
+            Debug.WriteLine("Close()");
+            Debug.Flush();
+
             _closeDelegates[(int)_state](nameof(Close));
         }
 
         public new void DiscardInBuffer()
         {
-#if DEBUG
-            _DEBUG.WriteLine("DiscardInBuffer()");
-            _DEBUG.Flush();
-#endif
+
+            Debug.WriteLine("DiscardInBuffer()");
+            Debug.Flush();
+
             _nullActionDelegates[(int)_state](nameof(DiscardInBuffer));
         }
 
         public new void DiscardOutBuffer()
         {
-#if DEBUG
-            _DEBUG.WriteLine("DiscardOutBuffer()");
-            _DEBUG.Flush();
-#endif
+            Debug.WriteLine("DiscardOutBuffer()");
+            Debug.Flush();
             _nullActionDelegates[(int)_state](nameof(DiscardOutBuffer));
 
         }
 
         public new void WriteLine(string line)
         {
-#if DEBUG
-            _DEBUG.WriteLine(line);
-            _DEBUG.Flush();
-#endif
+
+            Debug.WriteLine(line);
+            Debug.Flush();
+
             _writeLineDelegates[(int)_state](nameof(WriteLine), line);
         }
 
         public new string ReadExisting()
         {
-#if DEBUG
-            _DEBUG.WriteLine("ReadExisting()");
-            _DEBUG.Flush();
-#endif
+            Debug.WriteLine("ReadExisting()");
+            Debug.Flush();
             return _readLineDelegates[(int)_state](nameof(ReadExisting));
         }
 
         public new string ReadLine()
         {
-#if DEBUG
-            _DEBUG.WriteLine("ReadLine()");
-#endif
+
+            Debug.WriteLine("ReadLine()");
+
             return _readLineDelegates[(int)_state](nameof(ReadLine));
         }
 
@@ -183,7 +179,7 @@ namespace C_V_App.SerialPortWrappers
 #region VoidZeroDelegates
         private void AlreadyOpen(string functionName)
         {
-            throw new System.Exception($"{DEVICE_NAME}: Attempt to reopen already open port in function {functionName}");
+            throw new Exception($"{DEVICE_NAME}: Attempt to reopen already open port in function {functionName}");
         }
 
         private void Closed2Open(string functionName)
@@ -194,7 +190,7 @@ namespace C_V_App.SerialPortWrappers
 
         private void NotOpen(string functionName)
         {
-            throw new System.Exception($"{DEVICE_NAME}: Attempt to access port before opening in function {functionName}");
+            throw new Exception($"{DEVICE_NAME}: Attempt to access port before opening in function {functionName}");
         }
 
         private void Open2Closed(string functionName)
@@ -210,7 +206,7 @@ namespace C_V_App.SerialPortWrappers
 #region VoidStringDelegates
         private void NotOpen(string functionName, string arg)
         {
-            throw new System.Exception($"{DEVICE_NAME}: Attempt to access port before opening in function {functionName}");
+            throw new Exception($"{DEVICE_NAME}: Attempt to access port before opening in function {functionName}");
         }
 
         private void WriteLineDelegate(string functionName, string arg)
@@ -229,13 +225,10 @@ namespace C_V_App.SerialPortWrappers
         {
             return _readLineResponse;
         }
-        private string InitializedReadLine(string functionname)
-        {
-            return "Initialized";
-        }
+
         private string NotOpenReadLine(string functionName)
         {
-            throw new System.Exception($"{DEVICE_NAME}: Attempt to read from port before opening in function {functionName}");
+            throw new Exception($"{DEVICE_NAME}: Attempt to read from port before opening in function {functionName}");
         }
 #endregion StringZero
     }
