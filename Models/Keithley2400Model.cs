@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using C_V_App.SerialDevices;
 using C_V_App.SerialPortWrappers;
 
@@ -14,10 +15,17 @@ namespace C_V_App.Models
 
         private ISerialDevice _keithley2400SerialDevice;
 
-        public Keithley2400Model()
+        private IList<string> _reportingFields;
+
+        public Keithley2400Model() : this(new Keithley2400())
+        {
+        }
+
+        public Keithley2400Model(ISerialDevice keithley2400SerialDevice)
         {
             DeviceIdentifier = "Keithley";
-            _keithley2400SerialDevice = new Keithley2400();
+            _reportingFields = new List<string>();
+            _keithley2400SerialDevice = keithley2400SerialDevice;
             _configurations = new Keigthley2400Configuration[]
             {
                     VSource,
@@ -45,6 +53,8 @@ namespace C_V_App.Models
 
         public bool DeviceAvailable => _keithley2400SerialDevice.DeviceAvailable;
 
+        public IList<string> ReportingFields => _reportingFields;
+
         public void Initialize(KEITHLEY_CONFIG keithleyConfig)
         {
             _configurations[(int)keithleyConfig]();
@@ -61,8 +71,8 @@ namespace C_V_App.Models
             SerialSafeWrite(":SENS:VOLT:PROT 40 ");
             SerialSafeWrite(":SENS:VOLT:RANGE:AUTO OFF");
 
-            SerialSafeWrite(":FORM:ELEM VOLT, CURR, TIME");
-            SerialSafeWrite(":TRAC:TST:FORM ABS");
+//            SerialSafeWrite(":FORM:ELEM VOLT, CURR, TIME");
+//            SerialSafeWrite(":TRAC:TST:FORM ABS");
             SerialSafeWrite(":SENS:CURR:NPLC 10");
             SerialSafeWrite(":SOUR:VOLT:PROT 40");
 
@@ -82,8 +92,10 @@ namespace C_V_App.Models
 
 
             SerialSafeWrite(":SYST:RSEN ON");   //Enable 4 wire sensing
-                                                                          //globals.KT24Port.WriteLine(":FORM:ELEM?");
-                                                                          // globals.FieldList += globals.KT24Port.ReadLine();
+
+            // Get Reporting Dimensions. Returned as a comma separted list.
+            _reportingFields = SerialSafeRead(":FORM:ELEM?").Split(',');
+
             SerialSafeWrite(":OUTP ON");   // Enables the output but its at zero volts at this point
 
         }
@@ -108,18 +120,21 @@ namespace C_V_App.Models
 
 
             //SerialSafeWrite(":SYST:RSEN OFF");   //Enable 4 wire sensing
-            // globals.KT24Port.WriteLine(":FORM:ELEM?");
-            //globals.FieldList += globals.KT24Port.ReadLine();
+
+            // Get Reporting Dimensions. Returned as a comma separted list.
+            _reportingFields = SerialSafeRead(":FORM:ELEM?").Split(',');
+
             SerialSafeWrite(":OUTP ON");   // Enables the output but its at zero volts at this point
         }
 
         public void SerialSafeWrite(string data)
         {
-            if (!_keithley2400SerialDevice.SerialPort.IsOpen)
-            {
-                _keithley2400SerialDevice.SerialPort.Open();
-            }
             _keithley2400SerialDevice.SerialSafeWrite(data);
+        }
+
+        public void SerialSafeWriteWithDelay(string data)
+        {
+            _keithley2400SerialDevice.SerialSafeWriteWithDelay(data);
         }
 
         public string SerialSafeRead (string request)

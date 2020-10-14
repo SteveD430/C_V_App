@@ -17,6 +17,8 @@ namespace C_V_App.SerialDevices
 
         void SerialSafeWrite(string data);
 
+        void SerialSafeWriteWithDelay(string data);
+
         void ClearBuffers();
 
         void InitializeDevice(ISerialPortManager serialPortManager);

@@ -116,6 +116,8 @@
     <Compile Include="Exceptions\PortNotKnownException.cs" />
     <Compile Include="Exceptions\RetreivingDataException.cs" />
     <Compile Include="Exceptions\UnrecognisedConfigCommandException.cs" />
+    <Compile Include="Exceptions\UnrecognisedMeasurementDimensionException.cs" />
+    <Compile Include="MeasurementDevices\IMeasurementDevice.cs" />
     <Compile Include="Models\ConfigCommand.cs" />
     <Compile Include="Models\IKeithley2400Model.cs" />
     <Compile Include="Models\IWayneKerr4300Model.cs" />

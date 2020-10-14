@@ -8,7 +8,7 @@ namespace C_V_App.Models
 {
     public class WayneKerr4300Model : IWayneKerr4300Model
     {
-        WayneKerr4300 _wayneKerr4300SerialDevice;
+        ISerialDevice _wayneKerr4300SerialDevice;
 
         private IList<string> _reportingFields;
 
@@ -25,11 +25,16 @@ namespace C_V_App.Models
         "DC Resistance"
         };
 
-        public WayneKerr4300Model()
+        public WayneKerr4300Model() : this(new WayneKerr4300())
+        {
+
+        }
+
+        public WayneKerr4300Model(ISerialDevice wayneKerr4300SerialDevice)
         {
             DeviceIdentifier = "Wayne";
             _reportingFields = new List<string>();
-            _wayneKerr4300SerialDevice = new WayneKerr4300();
+            _wayneKerr4300SerialDevice = wayneKerr4300SerialDevice;
         }
 
         public double Amplitude { get; set; }
@@ -46,7 +51,7 @@ namespace C_V_App.Models
 
         public bool DeviceAvailable => _wayneKerr4300SerialDevice.DeviceAvailable;
 
-        public IList<string> ReportingFields => _wayneKerr4300SerialDevice.ReportingFields;
+        public IList<string> ReportingFields => _reportingFields;
 
         public void Initialize()
         {
@@ -80,20 +85,11 @@ namespace C_V_App.Models
             }
         }
 
-        public void SerialSafeWrite(string data)
-        {
-            if(!_wayneKerr4300SerialDevice.SerialPort.IsOpen)
-            {
-                _wayneKerr4300SerialDevice.SerialPort.Open();
-            }
-            _wayneKerr4300SerialDevice.SerialSafeWrite(data);
-        }
+        public string SerialSafeRead(string request) => _wayneKerr4300SerialDevice.SerialSafeRead(request);
 
-        public string SerialSafeRead(string request)
-        {
-            return _wayneKerr4300SerialDevice.SerialSafeRead(request);
-        }
+        public void SerialSafeWrite(string data) => _wayneKerr4300SerialDevice.SerialSafeWrite(data);
 
+        public void SerialSafeWriteWithDelay(string data) => _wayneKerr4300SerialDevice.SerialSafeWriteWithDelay(data);
 
         public void ClearBuffers()
         {

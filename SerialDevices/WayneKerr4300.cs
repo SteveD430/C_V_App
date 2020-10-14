@@ -4,6 +4,7 @@ using System.IO.Ports;
 using System.Threading;
 using C_V_App.SerialPortWrappers;
 using C_V_App.Exceptions;
+using C_V_App.MeasurementDevices;
 
 namespace C_V_App.SerialDevices
 {
@@ -41,8 +42,6 @@ namespace C_V_App.SerialDevices
         public override string Description => "WAYNE KERR 4300";
 
         public override ISerialPort SerialPort { get; protected set; }
-
-        public IList<string> ReportingFields { get; private set; }
 
         public override void InitializeDevice(ISerialPortManager serialPortManager)
         {
@@ -133,6 +132,5 @@ namespace C_V_App.SerialDevices
             serialPort.DiscardInBuffer();
             serialPort.DiscardOutBuffer();
         }
-
     }
 }

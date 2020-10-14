@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Text;
 using C_V_App.Exceptions;
 using C_V_App.SerialPortWrappers;
 
@@ -46,13 +47,11 @@ namespace C_V_App.Models
             string v_setstring = ":MEAS:LEV ";  // WK AC probe amplitude setup prefix
 
             string setstring = v_setstring += wayneKerr4300.Amplitude.ToString();
-            wayneKerr4300.SerialSafeWrite(setstring);     // Measuring AC amplitude now also set to operator defined value
-            setstring = f_setstring + wayneKerr4300.Amplitude.ToString();
-            wayneKerr4300.SerialSafeWrite(setstring);     // Set the amplitude
+            wayneKerr4300.SerialSafeWriteWithDelay(setstring);     // Measuring AC amplitude now also set to operator defined value
 
             setstring = ":SENS:CURR:PROT ";
             setstring += keithley2400.CurrentLimit.ToString();
-            keithley2400.SerialSafeWrite(setstring);            //Now set the Keithley 2400 I limit to configuration value
+            keithley2400.SerialSafeWriteWithDelay(setstring);            //Now set the Keithley 2400 I limit to configuration value
 
             int i = 0;
             foreach (double test_frequency in Frequencies)
@@ -62,7 +61,7 @@ namespace C_V_App.Models
                     break;
                 }
                 string setfrequency = f_setstring + test_frequency.ToString();
-                wayneKerr4300.SerialSafeWrite(setfrequency);
+                wayneKerr4300.SerialSafeWriteWithDelay(setfrequency);
                 //set the frequency to each one listed
                 C_V_Scan(token); //and run one scan at each frequency setting
                 i++;
@@ -85,7 +84,7 @@ namespace C_V_App.Models
                 version = Assembly.GetEntryAssembly().GetName().Version.ToString();
             }
             WriteComment($"Version Information: {version}");
-            WriteComment($"{_wayneKerr4300.ReportingFields}");
+            WriteReportingFieldHeaders();
             string notes = "Using measurement frequency " + _wayneKerr4300.SerialSafeRead(":MEAS:FREQ?") + " Hz ";
             notes += " at a drive level of " + _wayneKerr4300.SerialSafeRead(":MEAS:LEV?") + " volts.";
             WriteComment(notes);
@@ -175,6 +174,31 @@ namespace C_V_App.Models
         {
             ResultsStream.Write("# ");
             ResultsStream.WriteLine(comment);
+        }
+
+        private void WriteReportingFieldHeaders()
+        {
+            bool endCommaAdded = false;
+
+            // Output reporting fileds as a Comma Separated List, Keithley first, then Wayne Kerr
+            StringBuilder reportingHeaders = new StringBuilder();
+            foreach (var header in _keithley2400.ReportingFields)
+            {
+                reportingHeaders.Append(header);
+                reportingHeaders.Append(", ");
+                endCommaAdded = true;
+            }
+            foreach (var header in _wayneKerr4300.ReportingFields)
+            {
+                reportingHeaders.Append(header);
+                reportingHeaders.Append(", ");
+                endCommaAdded = true;
+            }
+            // Ignore last spurious ", "
+            if (endCommaAdded)
+            {
+                WriteComment(reportingHeaders.ToString(0, reportingHeaders.Length - 2));
+            }
         }
     }
 }

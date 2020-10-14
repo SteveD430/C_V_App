@@ -28,6 +28,8 @@ namespace C_V_App.Models
 
         public List<double> TestWaveFrequency { get; private set; }
 
+
+
         private delegate void CommandExecution(string data);
 
         private IDictionary<ConfigCommandType, CommandExecution> _commandExecutions;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using C_V_App.Exceptions;
 using C_V_App.SerialPortWrappers;
 
@@ -66,6 +67,12 @@ namespace C_V_App.SerialDevices
             // GC.SuppressFinalize(this);
         }
         #endregion
+
+        public void SerialSafeWriteWithDelay(string send)
+        {
+            SerialSafeWrite(send);
+            Thread.Sleep(50);
+        }
 
         public void SerialSafeWrite(string send)
         {
