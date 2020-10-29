@@ -67,46 +67,41 @@
               <RowDefinition />
               <RowDefinition />
               <RowDefinition />
+              <RowDefinition />
             </Grid.RowDefinitions>
             <ucs:FileSelectionControl x:Name="ConfigurationFileUsc" HorizontalAlignment="Left" Grid.Row="0" Grid.ColumnSpan="4"
-                                     FileName ="{Binding Path=ConfigurationFile, Mode=TwoWay}"
+                                     FileName ="{Binding Path=ConfigurationFile, Mode=TwoWay}" Margin="20"
                                      IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}">Configuration File:</ucs:FileSelectionControl>
-            <Button x:Name="ReadConfigBtn" Grid.Row="1" Grid.Column="0" Width="100" HorizontalAlignment="Right" Margin="2,2,2,20"
-                    Command="{Binding ReadConfigCommand}"
-                    IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}">Open</Button>
-            <Button x:Name="SaveConfigBtn" Grid.Row="1" Grid.Column="3" Width="100" HorizontalAlignment="Left" Margin="2,2,2,20"
-                    Command="{Binding SaveConfigCommand}"
-                    IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}">Save</Button>
 
-            <Label x:Name="StartVoltageLbl" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right" Margin="2">Start Voltage:</Label>
-            <xctk:DoubleUpDown x:Name="StartVoltageTbx" Grid.Column="1" Grid.Row="2" HorizontalAlignment="left" Margin="3" MinWidth="100"
-                                   AllowTextInput="True" Increment="0.01" Minimum="0.0" Maximum="9.99"
+            <Label x:Name="StartVoltageLbl" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Margin="2">Start Voltage:</Label>
+            <xctk:DoubleUpDown x:Name="StartVoltageTbx" Grid.Column="1" Grid.Row="1" HorizontalAlignment="left" Margin="3" MinWidth="100"
+                                   AllowTextInput="True" Increment="0.01" Minimum="-40.0" Maximum="40.0"
                                    Value="{Binding Keithley.StartVoltage }" FormatString="F2"   IsReadOnly="false"
                                   IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"/>
-            <Label x:Name="FinalVoltageLbl" Grid.Column="2" Grid.Row="2" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
+            <Label x:Name="FinalVoltageLbl" Grid.Column="2" Grid.Row="1" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
                                   HorizontalAlignment="Right" Margin="2">Final Voltage:</Label>
-            <xctk:DoubleUpDown x:Name="FinalVoltageTbx" Grid.Column="3" Grid.Row="2" HorizontalAlignment="left" Margin="3" MinWidth="100"
-                                   AllowTextInput="True" Increment="0.01" Minimum="{Binding ElementName=StartVoltageTbx}" Maximum="9.99"
+            <xctk:DoubleUpDown x:Name="FinalVoltageTbx" Grid.Column="3" Grid.Row="1" HorizontalAlignment="left" Margin="3" MinWidth="100"
+                                   AllowTextInput="True" Increment="0.01" Minimum="-40.0" Maximum="40.0"
                                    Value="{Binding Keithley.FinalVoltage }" FormatString="F2"  IsReadOnly="false"  />
-            <Label x:Name="CurrentLimitLbl" Grid.Column="0" Grid.Row="3" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
+            <Label x:Name="CurrentLimitLbl" Grid.Column="0" Grid.Row="2" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
                                     HorizontalAlignment="Right" Margin="2">DC Current Limit:</Label>
-            <xctk:DoubleUpDown x:Name="CurrentLimitTbx" Grid.Column="1" Grid.Row="3" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
+            <xctk:DoubleUpDown x:Name="CurrentLimitTbx" Grid.Column="1" Grid.Row="2" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
                                     HorizontalAlignment="left" Margin="3" MinWidth="100"
-                                   AllowTextInput="True" Increment="0.01" Minimum="0.0" Maximum="9.99"
+                                   AllowTextInput="True" Increment="0.01"
                                    Value="{Binding Keithley.CurrentLimit }" FormatString="F2"   IsReadOnly="false" />
-            <Label x:Name="StepVoltageLbl" Grid.Column="2" Grid.Row="3" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
+            <Label x:Name="StepVoltageLbl" Grid.Column="2" Grid.Row="2" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
                                     HorizontalAlignment="Right" Margin="2">Step/Increment Voltage:</Label>
-            <xctk:DoubleUpDown x:Name="StepVoltageTbx" Grid.Column="3" Grid.Row="3" HorizontalAlignment="left" Margin="3" MinWidth="100"
-                                   AllowTextInput="True" Increment="0.01" Minimum="0.1" Maximum="9.99"
+            <xctk:DoubleUpDown x:Name="StepVoltageTbx" Grid.Column="3" Grid.Row="2" HorizontalAlignment="left" Margin="3" MinWidth="100"
+                                   AllowTextInput="True" Increment="0.01"
                                    Value="{Binding Keithley.IncrementVoltage }" FormatString="F2"   IsReadOnly="false"
                                    IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"/>
-            <Label x:Name="AmplitudeLbl" Grid.Column="0" Grid.Row="4" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
+            <Label x:Name="AmplitudeLbl" Grid.Column="0" Grid.Row="3" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
                                     HorizontalAlignment="Right" Margin="2">AC Amplitude:</Label>
-            <xctk:DoubleUpDown x:Name="AmplitudeTbx" Grid.Column="1" Grid.Row="4" HorizontalAlignment="left" Margin="3" MinWidth="100" MaxHeight="80" MinHeight="25" VerticalAlignment="Top"
-                                   AllowTextInput="True" Increment="0.01" Minimum="0.0" Maximum="9.99"
+            <xctk:DoubleUpDown x:Name="AmplitudeTbx" Grid.Column="1" Grid.Row="3" HorizontalAlignment="left" Margin="3" MinWidth="100" MaxHeight="80" MinHeight="25" VerticalAlignment="Top"
+                                   AllowTextInput="True" Increment="0.01"
                                    Value="{Binding WayneKerr.Amplitude, Mode=TwoWay}" FormatString="F3"  IsReadOnly="false" 
                                    IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"/>
-            <GroupBox x:Name="FrequenciesGbx" Header="Frequencies" Grid.Row="4" Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="2">
+            <GroupBox x:Name="FrequenciesGbx" Header="Frequencies" Grid.Row="3" Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="0, 0, 80, 0">
               <Grid>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition />
@@ -141,6 +136,11 @@
                 </Button>
               </Grid>
             </GroupBox>
+
+            <Button x:Name="SaveConfigBtn" Grid.Row="5" Grid.Column="3" Width="100" HorizontalAlignment="Left" Margin="2,20,2,2"
+                    Command="{Binding SaveConfigCommand}"
+                    IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}">Save</Button>
+
           </Grid>
       </GroupBox>
       <GroupBox x:Name="ExecuteGbx" Grid.Row="2" Header="Execute" Margin="3" Background="#88bbddff">
@@ -158,8 +158,9 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Label x:Name="DescriptionLbl" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right">Description:</Label>
-          <TextBox x:Name="DescriptionTbx" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="9 2 10 2" Text="{Binding Description}"></TextBox>
-          <ucs:FileSelectionControl x:Name="LogFileUsc" HorizontalAlignment="Left" Grid.Row="1" Grid.ColumnSpan="4" Margin="3"
+          <TextBox x:Name="DescriptionTbx" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="2 2 10 2" Text="{Binding Description}" 
+                   Width="500" HorizontalAlignment="Left"></TextBox>
+          <ucs:FileSelectionControl x:Name="LogFileUsc" HorizontalAlignment="Left" Grid.Row="1" Grid.ColumnSpan="4" 
                                     FileName ="{Binding Path=ResultsFileName, Mode=TwoWay}"
                                     IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
                                     AllowCreateNewFile="true">Results File:</ucs:FileSelectionControl>
@@ -169,7 +170,7 @@
           <Button x:Name="StopBtn" Grid.Row="2" Grid.Column="3" Width="100" Margin="10" Command="{Binding StopCVTestCommand}">Stop</Button>
           <Label x:Name="ResultsLbl" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right" Margin="2">Output:</Label>
           <TextBox x:Name="Resultstbx" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Margin="2" 
-                   Width="400"  Height="200" MaxHeight="200" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   Width="500"  Height="200" MaxHeight="200" ScrollViewer.VerticalScrollBarVisibility="Auto"
                    Text="{Binding MonitorText}"/>
         </Grid> 
       </GroupBox>

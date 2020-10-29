@@ -29,7 +29,8 @@ namespace C_V_App.SerialPortWrappers
             {
                 {"*IDN?", DeviceName },
                 {"READ?", DataPoint },
-                {"SYSTem:RSENse?", Sensors }
+                {"SYSTem:RSENse?", Sensors },
+                {":FORM:ELEM?", Headers }
             };
 #if DEBUG
             Debug = new StreamWriter(@"D:\Steve\Projects\Microfab\C-V\C_V_App\kt_DEBUG.dat");
@@ -166,6 +167,11 @@ namespace C_V_App.SerialPortWrappers
         public string Sensors()
         {
             return "2";
+        }
+
+        public string Headers()
+        {
+            return "Volts, Amps, Time";
         }
 #endregion Command Response
 

@@ -66,7 +66,8 @@ namespace C_V_App.Models
             SerialSafeWrite(":MEAS:FREQ 0.5e6");
             Thread.Sleep(1000);
 
-            // Get Reporting Field names;
+            // Get Reporting Field names
+            _reportingFields.Clear();
             _reportingFields.Add(GetReportField(":MEAS:FUNC1?"));
             _reportingFields.Add(GetReportField(":MEAS:FUNC2?"));
         }

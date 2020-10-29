@@ -62,8 +62,11 @@ namespace C_V_App.Models
                 }
                 string setfrequency = f_setstring + test_frequency.ToString();
                 wayneKerr4300.SerialSafeWriteWithDelay(setfrequency);
-                //set the frequency to each one listed
-                C_V_Scan(token); //and run one scan at each frequency setting
+                Thread.Sleep(2000);     // WK needs a HUGE delay in setting the frequency.
+                                        // Without this pause, either the Frequency in not set as requested
+                                        // Or the WK times-out when asking for the frequency.
+                
+                C_V_Scan(token); 
                 i++;
             }
             stopWatch.Stop();
@@ -90,7 +93,7 @@ namespace C_V_App.Models
             WriteComment(notes);
             string v_set = "SOUR:VOLT:LEV ";
             string v_send;
-            for (double vout = _keithley2400.StartVoltage; vout <= _keithley2400.FinalVoltage; vout += _keithley2400.IncrementVoltage)
+            for (double vout = _keithley2400.StartVoltage; !FinishedLoop(_keithley2400.StartVoltage, _keithley2400.IncrementVoltage, vout); vout += _keithley2400.IncrementVoltage)
             {
                 // Check for Cancellation.
                 if (token.IsCancellationRequested)
@@ -151,6 +154,12 @@ namespace C_V_App.Models
             ClearBuffers(); // and clean up the serial buffers on the way out
         }
 
+        private bool FinishedLoop(double loopStart, double loopEnd, double currentValue)
+        {
+            int directionOfLoop = Math.Sign(loopEnd - loopStart);
+            return directionOfLoop == 0 ? true : (directionOfLoop * Math.Sign(loopEnd - currentValue)) < 0;
+        }
+
         private void DataWriteLine(string stuff)
         {
             try
@@ -178,27 +187,24 @@ namespace C_V_App.Models
 
         private void WriteReportingFieldHeaders()
         {
-            bool endCommaAdded = false;
+            const string SPACER = ", ";
+            string spacer = "";
 
             // Output reporting fileds as a Comma Separated List, Keithley first, then Wayne Kerr
             StringBuilder reportingHeaders = new StringBuilder();
             foreach (var header in _keithley2400.ReportingFields)
             {
+                reportingHeaders.Append(spacer);
                 reportingHeaders.Append(header);
-                reportingHeaders.Append(", ");
-                endCommaAdded = true;
+                spacer = SPACER;
             }
             foreach (var header in _wayneKerr4300.ReportingFields)
             {
+                reportingHeaders.Append(spacer);
                 reportingHeaders.Append(header);
-                reportingHeaders.Append(", ");
-                endCommaAdded = true;
+                spacer = SPACER;
             }
-            // Ignore last spurious ", "
-            if (endCommaAdded)
-            {
-                WriteComment(reportingHeaders.ToString(0, reportingHeaders.Length - 2));
-            }
+            WriteComment(reportingHeaders.ToString());
         }
     }
 }

@@ -22,7 +22,10 @@ namespace C_V_App.SerialPortWrappers
         private string _readLineResponse;
         private const string WAYNE_KERR_4300 = "WAYNE KERR 4300";
         private const string DEVICE_NAME = WAYNE_KERR_4300;
-        private string _level = "LEVEL";
+        private string _level = "2";
+        private string _freq = "500Khz";
+        private const string FUNC1 = "9";
+        private const string FUNC2 = "7";
 
         public WayneKerr4300Emulator(string name) : base(name)
         {
@@ -38,7 +41,10 @@ namespace C_V_App.SerialPortWrappers
                 {"*IDN?", DeviceName },
                 {":READ?", DataPoint },
                 {":TRIG", DataPoint},
-                {":MEAS:LEV?", ReturnLevel }
+                {":MEAS:LEV?", ReturnLevel },
+                {":MEAS:FREQ?", ReturnFreq },
+                {":MEAS:FUNC1?", ReturnFunc1 },
+                {":MEAS:FUNC2?", ReturnFunc2 }
             };
 
             _readLineResponse = null;
@@ -213,6 +219,18 @@ namespace C_V_App.SerialPortWrappers
         {
             return _level;
         }
-#endregion Command Response
+        public string ReturnFreq()
+        {
+            return _freq;
+        }
+        public string ReturnFunc1()
+        {
+            return FUNC1;
+        }
+        public string ReturnFunc2()
+        {
+            return FUNC2;
+        }
+        #endregion Command Response
     }
 }

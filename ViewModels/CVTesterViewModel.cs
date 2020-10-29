@@ -71,11 +71,7 @@ namespace C_V_App.ViewModels
             _openCircuitActive = false;
             _devicesDiscovered = false;
             Executing = false;
-            Emulate = false; // SD++
-
-
-            ReadConfigCommand = new DelegateCommand(ExecuteReadConfig, CanExecuteReadConfig)
-                .ObservesProperty<string>(() => ConfigurationFile);
+            Emulate = false;
 
             SaveConfigCommand = new DelegateCommand(ExecuteSaveConfig, CanExecuteSaveConfig)
                .ObservesProperty<string>(() => ConfigurationFile);
@@ -185,7 +181,10 @@ namespace C_V_App.ViewModels
         public string ConfigurationFile
         {
             get { return _configurationFile; }
-            set { SetProperty<string>(ref _configurationFile, value); }
+            set {
+                    SetProperty<string>(ref _configurationFile, value);
+                    ExecuteReadConfig();
+                }
         }
 
         public double StartVoltage
@@ -319,11 +318,6 @@ namespace C_V_App.ViewModels
 
         public ICommand ReadConfigCommand { get; set; }
 
-        public bool CanExecuteReadConfig()
-        {
-            return !String.IsNullOrWhiteSpace(ConfigurationFile); ;
-        }
-
         public void ExecuteReadConfig()
         {
             try
@@ -356,6 +350,16 @@ namespace C_V_App.ViewModels
 
         public void ExecuteSaveConfig()
         {
+            // Check if Config file already exists before Saving
+            if (File.Exists(ConfigurationFile))
+            {
+                MessageBoxResult result = MessageBox.Show("Configuration file already exists \n Are you sure you want to over-write", 
+                    "CV_App", MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.No)
+                {
+                    return;
+                }
+            }
             try
             {
                 _cvConfiguration.StartVoltage = StartVoltage;
@@ -447,6 +451,16 @@ namespace C_V_App.ViewModels
 
         public void ExecuteCVTest()
         {
+            // Check if Config file already exists before Saving
+            if (File.Exists(ResultsFileName))
+            {
+                MessageBoxResult result = MessageBox.Show("Results file already exists \n Are you sure you want to over-write",
+                    "CV_App", MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.No)
+                {
+                    return;
+                }
+            }
             // Open Results file for writing
             try
             {
