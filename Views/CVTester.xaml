@@ -87,7 +87,7 @@
                                     HorizontalAlignment="Right" Margin="2">DC Current Limit:</Label>
             <xctk:DoubleUpDown x:Name="CurrentLimitTbx" Grid.Column="1" Grid.Row="2" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
                                     HorizontalAlignment="left" Margin="3" MinWidth="100"
-                                   AllowTextInput="True" Increment="0.01"
+                                   AllowTextInput="True" Increment="0.01" Minimum="0.0" Maximum="0.5"
                                    Value="{Binding Keithley.CurrentLimit }" FormatString="F2"   IsReadOnly="false" />
             <Label x:Name="StepVoltageLbl" Grid.Column="2" Grid.Row="2" IsEnabled="{Binding Executing, Converter={StaticResource InvertBoolean}}"
                                     HorizontalAlignment="Right" Margin="2">Step/Increment Voltage:</Label>
